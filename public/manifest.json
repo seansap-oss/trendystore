@@ -1,0 +1,19 @@
+{
+  "name": "PlanetFashion — Wear Your Planet",
+  "short_name": "PF",
+  "description": "PlanetFashion — Minimal apparel store. Hero video, ticker, UPI/GPay, discount coupons, PWA ready for iOS/Android.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e10600",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "orientation": "portrait",
+  "shortcuts": [
+    { "name": "Shop All", "url": "/collection/all", "description": "Browse collection" },
+    { "name": "Admin", "url": "/admin", "description": "Manage store" }
+  ]
+}

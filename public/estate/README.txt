@@ -1,0 +1,11 @@
+﻿Place your 10 uploaded images in this folder with these exact names:
+01-site-plan.jpg        (Site Plan - 10 zones)
+02-ground-floor.jpg     (Ground floor - Grand Foyer 24x30, Kitchen 24x20 etc)
+03-upper-floor.jpg      (Upper floor - Master Suite 20x21, Gallery)
+04-master-bedroom.jpg   (Master bedroom - chandelier + fireplace + lawn view)
+05-drawing-room.jpg     (Double-height Drawing Room with pool vista)
+06-kitchen.jpg          (Coffered kitchen + marble island + brass lanterns)
+07-gym.jpg              (Gym with pool vista - floor-to-ceiling glass)
+08-sauna.jpg            (Cedar sauna 165F)
+09-tennis-pool-courts.jpg (Tennis court + pavilion + mansion rear)
+10-aerial-front.jpg     (Front aerial - circular drive + 5 cars + estate)
