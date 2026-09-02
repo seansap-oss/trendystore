@@ -145,13 +145,13 @@ export const useUniqloStore = create<UniqloStore>()(
       toggleWishlist: (pid)=> set((s)=> ({ wishlist: s.wishlist.includes(pid) ? s.wishlist.filter(x=>x!==pid) : [...s.wishlist, pid]})),
     }),
     {
-      name:'manikunj-store-v3',
+      name:'manikunj-store-v4',
       storage: createJSONStorage(() => typeof window !== 'undefined' ? localStorage : undefined as any),
       skipHydration: false,
       partialize: (s)=> ({ products:s.products, categories:s.categories, hero:s.hero, ticker:s.ticker, announcements:s.announcements, coupons:s.coupons, sections:s.sections, homepageSections:s.homepageSections, navigation:s.navigation, siteSettings:s.siteSettings, cart:s.cart, orders:s.orders, wishlist:s.wishlist }),
-      version: 3,
+      version: 4,
       migrate: (persisted: any, version: number) => {
-        if (version !== 3) return undefined as any;
+        if (version !== 4) return undefined as any;
         return persisted;
       },
     }
