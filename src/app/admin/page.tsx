@@ -43,7 +43,7 @@ export default function AdminPage(){
       <div className="max-w-[1420px] mx-auto px-3 sm:px-4 py-4">
         <div className="bg-black text-white p-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3"><div className="w-10 h-10 bg-white text-black flex flex-col items-center justify-center leading-none"><span className="font-black text-[14px]">MK</span><span className="font-bold text-[6px] tracking-[0.18em]">MANIKUNJ</span></div><div><h1 className="font-black text-lg" style={{ fontFamily: 'var(--font-space-grotesk)' }}>Trendy Store — Admin CMS</h1><p className="text-xs text-white/80">Manage your store: Hero & banners • Sections • Products • Categories • Coupons • Customers • Orders</p></div></div>
-          <div className="flex gap-2"><span className="hidden sm:inline bg-white/10 px-3 py-2 text-xs font-bold border border-white/20">{siteSettings.brandName}</span><Link href="/" className="bg-white text-black px-4 py-2 text-xs font-black">VIEW STORE</Link></div>
+          <div className="flex gap-2"><span className="hidden sm:inline bg-white/10 px-3 py-2 text-xs font-bold border border-white/20">{siteSettings.brandName}</span><button onClick={()=>{ localStorage.removeItem('manikunj-store-v3'); location.reload(); }} className="hidden sm:inline bg-white/20 text-white px-3 py-2 text-xs font-bold border border-white/30">RESET CACHE</button><Link href="/" className="bg-white text-black px-4 py-2 text-xs font-black">VIEW STORE</Link></div>
         </div>
 
         <div className="flex gap-2 overflow-x-auto py-3 scrollbar-hide">
@@ -59,7 +59,14 @@ export default function AdminPage(){
               <div><h2 className="font-black">HERO SECTION — Title / 10% OFF Editor</h2><p className="text-xs text-neutral-500">Edit draft, preview, then Publish to go live on website & app instantly.</p></div>
               <div className="flex gap-2">
                 <button onClick={()=>{ setHeroDraft(hero); setHasHeroChanges(false); showToast('Draft reset'); }} className="border border-neutral-300 px-3 py-1.5 text-xs font-bold">RESET</button>
-                <button onClick={()=>{ store.updateHero({ ...heroDraft, draft:false, publishedAt: Date.now() }); setHasHeroChanges(false); showToast('✓ Published — live on website & app'); }} className="bg-black text-white px-5 py-1.5 text-xs font-black">PUBLISH</button>
+                <button onClick={()=>{ 
+                  const payload = { ...heroDraft, draft:false, publishedAt: Date.now() } as any;
+                  store.updateHero(payload);
+                  // also sync homepage builder hero — this is what homepage actually renders
+                  const hs = store.homepageSections.find(s=>s.type==='hero');
+                  if(hs) store.updateHomepageSection(hs.id, { title: heroDraft.title, eyebrow: heroDraft.eyebrow, subtitle: heroDraft.subtitle, image: heroDraft.src, mobileImage: heroDraft.mobileSrc, overlayOpacity: heroDraft.overlayOpacity });
+                  setHasHeroChanges(false); showToast('✓ Published — live on website & app'); 
+                }} className="bg-black text-white px-5 py-1.5 text-xs font-black">PUBLISH</button>
               </div>
             </div>
             {hasHeroChanges && <p className="text-xs text-amber-600 font-bold">● Unsaved changes — press Publish to go live</p>}
@@ -118,7 +125,13 @@ export default function AdminPage(){
                 <label className="flex items-center gap-2 text-xs font-bold"><input type="checkbox" checked={heroDraft.isActive} onChange={e=> { setHeroDraft({...heroDraft, isActive: e.target.checked}); setHasHeroChanges(true); }} /> Active</label>
                 <div className="flex gap-2 pt-2">
                   <button onClick={()=>{ setHeroDraft({...heroDraft, draft:true}); showToast('Draft saved (not live)'); setHasHeroChanges(false); }} className="flex-1 border border-neutral-900 py-2 text-xs font-bold">SAVE DRAFT</button>
-                  <button onClick={()=>{ store.updateHero({ ...heroDraft, draft:false, publishedAt: Date.now() }); setHasHeroChanges(false); showToast('✓ Published — live on website & app'); }} className="flex-1 bg-black text-white py-2 text-xs font-black">PUBLISH LIVE</button>
+                  <button onClick={()=>{ 
+                    const payload = { ...heroDraft, draft:false, publishedAt: Date.now() } as any;
+                    store.updateHero(payload);
+                    const hs = store.homepageSections.find(s=>s.type==='hero');
+                    if(hs) store.updateHomepageSection(hs.id, { title: heroDraft.title, eyebrow: heroDraft.eyebrow, subtitle: heroDraft.subtitle, image: heroDraft.src, mobileImage: heroDraft.mobileSrc, overlayOpacity: heroDraft.overlayOpacity });
+                    setHasHeroChanges(false); showToast('✓ Published — live on website & app'); 
+                  }} className="flex-1 bg-black text-white py-2 text-xs font-black">PUBLISH LIVE</button>
                 </div>
               </div>
               <div>

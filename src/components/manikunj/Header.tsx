@@ -22,9 +22,15 @@ export default function ManiKunjHeader(){
   const products = useUniqloStore(s=> s.products);
   const filtered = q.length>=2 ? products.filter(p=> p.name.toLowerCase().includes(q.toLowerCase())).slice(0,5) : [];
 
+  const ticker = useUniqloStore(s=> s.ticker);
   return (
     <header className={`${siteSettings.headerStyle==='sticky' ? 'sticky top-0' : ''} z-40 bg-white`}>
       <AnnouncementBar />
+      {ticker.enabled && (
+        <a href={ticker.link || '/collection/all'} className="block w-full text-center py-1.5 text-[11px] font-bold tracking-wide truncate" style={{ background: ticker.bgColor, color: ticker.textColor }}>
+          {ticker.text}
+        </a>
+      )}
       {/* utility */}
       <div className="hidden md:flex h-7 bg-[#fafafa] text-[11px] items-center justify-between px-4 border-b border-neutral-100">
         <div className="flex items-center gap-4 text-neutral-600">
