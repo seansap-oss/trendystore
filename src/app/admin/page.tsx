@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ManiKunjHeader from '@/components/manikunj/Header';
-import { useUniqloStore } from '@/lib/uniqlo/store';
+import { useUniqloStore, forceSave, getStorageInfo } from '@/lib/uniqlo/store';
 import { useUserStore } from '@/lib/userStore';
 import type { UniqloProduct, UniqloCategory, HeroSection, TickerConfig, Coupon } from '@/lib/uniqlo/types';
 
@@ -19,6 +19,20 @@ export default function AdminPage(){
   const [tab,setTab]=useState<'hero'|'ticker'|'announcements'|'site'|'products'|'categories'|'coupons'|'sections'|'profiles'|'orders'>('hero');
   const [toast,setToast]=useState<string|null>(null);
   const showToast=(msg:string)=>{ setToast(msg); setTimeout(()=>setToast(null),2500); };
+  const [storageInfo,setStorageInfo]=useState<{exists:boolean,size:number,hero:any}|null>(null);
+
+  useEffect(()=>{
+    const info=getStorageInfo();
+    setStorageInfo(info);
+  },[tab]);
+
+  // Auto-save: whenever any store state changes, persist to localStorage as backup
+  useEffect(()=>{
+    const unsub = useUniqloStore.subscribe(()=>{
+      forceSave();
+    });
+    return unsub;
+  },[]);
 
   // hero draft — edits stay local until Publish
   const hero=store.hero;
@@ -43,7 +57,20 @@ export default function AdminPage(){
       <div className="max-w-[1420px] mx-auto px-3 sm:px-4 py-4">
         <div className="bg-black text-white p-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3"><div className="w-10 h-10 bg-white text-black flex flex-col items-center justify-center leading-none"><span className="font-black text-[14px]">MK</span><span className="font-bold text-[6px] tracking-[0.18em]">MANIKUNJ</span></div><div><h1 className="font-black text-lg" style={{ fontFamily: 'var(--font-space-grotesk)' }}>Trendy Store — Admin CMS</h1><p className="text-xs text-white/80">Manage your store: Hero & banners • Sections • Products • Categories • Coupons • Customers • Orders</p></div></div>
-          <div className="flex gap-2"><span className="hidden sm:inline bg-white/10 px-3 py-2 text-xs font-bold border border-white/20">{siteSettings.brandName}</span><button onClick={()=>{ localStorage.removeItem('manikunj-store-v3'); location.reload(); }} className="hidden sm:inline bg-white/20 text-white px-3 py-2 text-xs font-bold border border-white/30">RESET CACHE</button><Link href="/" className="bg-white text-black px-4 py-2 text-xs font-black">VIEW STORE</Link></div>
+          <div className="flex gap-2 flex-wrap items-center">
+            <span className="hidden sm:inline bg-white/10 px-3 py-2 text-xs font-bold border border-white/20">{siteSettings.brandName}</span>
+            <span className={`hidden sm:inline px-2 py-1 text-[10px] font-bold border ${storageInfo?.exists ? 'bg-green-900 border-green-600 text-green-300' : 'bg-red-900 border-red-600 text-red-300'}`}>
+              {storageInfo?.exists ? `STORED ${(storageInfo.size/1024).toFixed(0)}KB` : 'NO STORAGE'}
+            </span>
+            <button onClick={()=>{ 
+              const result=forceSave();
+              if(result.ok) showToast(`✓ FORCE SAVED (${(result.size!/1024).toFixed(0)}KB)`);
+              else showToast(`✗ Save failed: ${result.error}`);
+              setStorageInfo(getStorageInfo());
+            }} className="bg-green-600 text-white px-3 py-2 text-xs font-bold border border-green-700">FORCE SAVE</button>
+            <button onClick={()=>{ localStorage.removeItem('manikunj-store-v5'); localStorage.removeItem('manikunj-store-v4'); localStorage.removeItem('manikunj-store-v3'); location.reload(); }} className="hidden sm:inline bg-white/20 text-white px-3 py-2 text-xs font-bold border border-white/30">RESET CACHE</button>
+            <Link href="/" className="bg-white text-black px-4 py-2 text-xs font-black">VIEW STORE</Link>
+          </div>
         </div>
 
         <div className="flex gap-2 overflow-x-auto py-3 scrollbar-hide">
@@ -62,10 +89,10 @@ export default function AdminPage(){
                 <button onClick={()=>{ 
                   const payload = { ...heroDraft, draft:false, publishedAt: Date.now() } as any;
                   store.updateHero(payload);
-                  // also sync homepage builder hero — this is what homepage actually renders
                   const hs = store.homepageSections.find(s=>s.type==='hero');
-                  if(hs) store.updateHomepageSection(hs.id, { title: heroDraft.title, eyebrow: heroDraft.eyebrow, subtitle: heroDraft.subtitle, image: heroDraft.src, mobileImage: heroDraft.mobileSrc, overlayOpacity: heroDraft.overlayOpacity });
-                  setHasHeroChanges(false); showToast('✓ Published — live on website & app'); 
+                  if(hs) store.updateHomepageSection(hs.id, { title: heroDraft.title, eyebrow: heroDraft.eyebrow, subtitle: heroDraft.subtitle, image: heroDraft.src, mobileImage: heroDraft.mobileSrc, overlayOpacity: heroDraft.overlayOpacity, isActive: heroDraft.isActive });
+                  forceSave();
+                  setHasHeroChanges(false); showToast('✓ Published — saved & live on website & app'); 
                 }} className="bg-black text-white px-5 py-1.5 text-xs font-black">PUBLISH</button>
               </div>
             </div>
@@ -129,8 +156,9 @@ export default function AdminPage(){
                     const payload = { ...heroDraft, draft:false, publishedAt: Date.now() } as any;
                     store.updateHero(payload);
                     const hs = store.homepageSections.find(s=>s.type==='hero');
-                    if(hs) store.updateHomepageSection(hs.id, { title: heroDraft.title, eyebrow: heroDraft.eyebrow, subtitle: heroDraft.subtitle, image: heroDraft.src, mobileImage: heroDraft.mobileSrc, overlayOpacity: heroDraft.overlayOpacity });
-                    setHasHeroChanges(false); showToast('✓ Published — live on website & app'); 
+                    if(hs) store.updateHomepageSection(hs.id, { title: heroDraft.title, eyebrow: heroDraft.eyebrow, subtitle: heroDraft.subtitle, image: heroDraft.src, mobileImage: heroDraft.mobileSrc, overlayOpacity: heroDraft.overlayOpacity, isActive: heroDraft.isActive });
+                    forceSave();
+                    setHasHeroChanges(false); showToast('✓ Published — saved & live on website & app'); 
                   }} className="flex-1 bg-black text-white py-2 text-xs font-black">PUBLISH LIVE</button>
                 </div>
               </div>
@@ -167,7 +195,7 @@ export default function AdminPage(){
         {tab==='ticker' && (
           <div className="bg-white border border-neutral-200 p-4 space-y-3">
             <div className="flex justify-between"><div><h2 className="font-black">ANNOUNCEMENT TICKER — Top Bar (tap to change)</h2><p className="text-xs text-neutral-500">This is the scrolling bar under header. Edit text, tap link, colors, then Publish.</p></div>
-              <button onClick={()=>{ store.updateTicker(tickerDraft); setHasTickerChanges(false); showToast('✓ Ticker published — live'); }} className="bg-black text-white px-4 py-1.5 text-xs font-black h-fit">PUBLISH</button>
+              <button onClick={()=>{ store.updateTicker(tickerDraft); forceSave(); setHasTickerChanges(false); showToast('✓ Ticker published — live'); }} className="bg-black text-white px-4 py-1.5 text-xs font-black h-fit">PUBLISH</button>
             </div>
             {hasTickerChanges && <p className="text-xs text-amber-600 font-bold">● Unsaved</p>}
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={tickerDraft.enabled} onChange={e=> { setTickerDraft({...tickerDraft, enabled: e.target.checked}); setHasTickerChanges(true); }} /> Enabled</label>
@@ -180,7 +208,7 @@ export default function AdminPage(){
             </div>
             <label className="text-xs font-bold">LINK (where ticker taps to)</label><input value={tickerDraft.link || ''} onChange={e=> { setTickerDraft({...tickerDraft, link: e.target.value}); setHasTickerChanges(true); }} className="w-full border px-3 py-2 text-sm" placeholder="/collection/all" />
             <div className="border p-2" style={{ background: tickerDraft.bgColor, color: tickerDraft.textColor }}><p className="text-xs font-bold">{tickerDraft.text}</p></div>
-            <div className="flex gap-2"><button onClick={()=>{ setTickerDraft(ticker); setHasTickerChanges(false); }} className="border px-3 py-1.5 text-xs">RESET</button><button onClick={()=>{ store.updateTicker(tickerDraft); setHasTickerChanges(false); showToast('✓ Ticker published'); }} className="bg-black text-white px-4 py-1.5 text-xs font-black">SAVE & PUBLISH</button></div>
+            <div className="flex gap-2"><button onClick={()=>{ setTickerDraft(ticker); setHasTickerChanges(false); }} className="border px-3 py-1.5 text-xs">RESET</button><button onClick={()=>{ store.updateTicker(tickerDraft); forceSave(); setHasTickerChanges(false); showToast('✓ Ticker published'); }} className="bg-black text-white px-4 py-1.5 text-xs font-black">SAVE & PUBLISH</button></div>
           </div>
         )}
         {tab==='announcements' && (
@@ -206,7 +234,7 @@ export default function AdminPage(){
         {tab==='site' && (
           <div className="bg-white border border-neutral-200 p-4 space-y-4">
             <div className="flex justify-between"><div><h2 className="font-black">HEADER & FOOTER — Site Settings</h2><p className="text-xs text-neutral-500">Edit “Join Manikunj” footer, brand name, header promo, then Publish to go live everywhere.</p></div>
-              <button onClick={()=>{ store.updateSiteSettings(siteDraft); setHasSiteChanges(false); showToast('✓ Site published — header/footer live on website & app'); }} className="bg-black text-white px-4 py-1.5 text-xs font-black h-fit">PUBLISH</button>
+              <button onClick={()=>{ store.updateSiteSettings(siteDraft); forceSave(); setHasSiteChanges(false); showToast('✓ Site published — header/footer live on website & app'); }} className="bg-black text-white px-4 py-1.5 text-xs font-black h-fit">PUBLISH</button>
             </div>
             {hasSiteChanges && <p className="text-xs text-amber-600 font-bold">● Unsaved — press Publish</p>}
             <div className="grid md:grid-cols-2 gap-4">
@@ -223,7 +251,7 @@ export default function AdminPage(){
                 <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={siteDraft.newsletterEnabled ?? true} onChange={e=> { setSiteDraft({...siteDraft, newsletterEnabled: e.target.checked}); setHasSiteChanges(true); }} /> Show newsletter footer</label>
               </div>
             </div>
-            <div className="flex gap-2"><button onClick={()=>{ setSiteDraft(store.siteSettings); setHasSiteChanges(false); }} className="border px-3 py-1.5 text-xs">RESET</button><button onClick={()=>{ store.updateSiteSettings(siteDraft); setHasSiteChanges(false); showToast('✓ Saved & Published — footer/header live'); }} className="bg-black text-white px-5 py-1.5 text-xs font-black">SAVE & PUBLISH LIVE</button></div>
+            <div className="flex gap-2"><button onClick={()=>{ setSiteDraft(store.siteSettings); setHasSiteChanges(false); }} className="border px-3 py-1.5 text-xs">RESET</button>              <button onClick={()=>{ store.updateSiteSettings(siteDraft); forceSave(); setHasSiteChanges(false); showToast('✓ Saved & Published — footer/header live'); }} className="bg-black text-white px-5 py-1.5 text-xs font-black">SAVE & PUBLISH LIVE</button></div>
             <div className="border p-3 bg-[#111] text-white"><p className="text-xs font-black">{siteDraft.newsletterTitle || 'JOIN MANIKUNJ REWARDS'}</p><p className="text-xs text-white/70">{siteDraft.newsletterSubtitle}</p></div>
           </div>
         )}

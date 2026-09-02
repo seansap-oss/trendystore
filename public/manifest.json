@@ -1,11 +1,11 @@
 {
-  "name": "PlanetFashion — Wear Your Planet",
-  "short_name": "PF",
-  "description": "PlanetFashion — Minimal apparel store. Hero video, ticker, UPI/GPay, discount coupons, PWA ready for iOS/Android.",
+  "name": "ManiKunj — Wear Your Story",
+  "short_name": "ManiKunj",
+  "description": "ManiKunj — Cotton On inspired fashion. Shop Women, Men, Kids. Trend-led, relaxed, joyful.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#e10600",
+  "theme_color": "#111111",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }

@@ -18,6 +18,8 @@ interface UniqloStore {
   cart: UniqloCartItem[];
   orders: UniqloOrder[];
   wishlist: string[];
+  _hydrated: boolean;
+  setHydrated: (v: boolean) => void;
   // product
   setProducts: (p: UniqloProduct[]) => void;
   addProduct: (p: UniqloProduct) => void;
@@ -66,33 +68,7 @@ interface UniqloStore {
   toggleWishlist: (productId: string) => void;
 }
 
-function safeStorage(){
-  if(typeof window==='undefined') return undefined as any;
-  return {
-    getItem: (name:string)=>{
-      try{ return localStorage.getItem(name); }catch{ return null; }
-    },
-    setItem: (name:string,value:string)=>{
-      try{
-        localStorage.setItem(name,value);
-      }catch(e:any){
-        // Quota exceeded — try to clear old v3 and retry
-        try{
-          if(e?.name==='QuotaExceededError' || e?.code===22){
-            console.warn('Storage quota full, clearing old caches');
-            localStorage.removeItem('manikunj-store-v3');
-            localStorage.removeItem('planetfashion-store-v2');
-            try{ localStorage.setItem(name,value); }catch{}
-          }
-        }catch{}
-        console.error('Persist save failed',e);
-      }
-    },
-    removeItem: (name:string)=>{
-      try{ localStorage.removeItem(name); }catch{}
-    },
-  } as any;
-}
+const STORAGE_KEY = 'manikunj-store-v5';
 
 export const useUniqloStore = create<UniqloStore>()(
   persist(
@@ -110,6 +86,8 @@ export const useUniqloStore = create<UniqloStore>()(
       cart: [],
       orders: [],
       wishlist: [],
+      _hydrated: false,
+      setHydrated: (v) => set({ _hydrated: v }),
 
       setProducts: (products) => set({ products }),
       addProduct: (p) => set((s) => ({ products: [p, ...s.products] })),
@@ -173,36 +151,68 @@ export const useUniqloStore = create<UniqloStore>()(
       toggleWishlist: (pid)=> set((s)=> ({ wishlist: s.wishlist.includes(pid) ? s.wishlist.filter(x=>x!==pid) : [...s.wishlist, pid]})),
     }),
     {
-      name:'manikunj-store-v4',
-      storage: createJSONStorage(() => safeStorage()),
-      skipHydration: false,
-      partialize: (s)=> ({ products:s.products, categories:s.categories, hero:s.hero, ticker:s.ticker, announcements:s.announcements, coupons:s.coupons, sections:s.sections, homepageSections:s.homepageSections, navigation:s.navigation, siteSettings:s.siteSettings, cart:s.cart, orders:s.orders, wishlist:s.wishlist }),
-      version: 4,
-      migrate: (persisted: any, version: number) => {
-        if (persisted && version < 4) {
-          // Preserve user edits from v3 instead of wiping — merge with new defaults for new fields
-          try{
-            const raw = localStorage.getItem('manikunj-store-v3');
-            if(raw){
-              const old = JSON.parse(raw);
-              if(old?.state) return { ...old.state, ...persisted } as any;
-            }
-          }catch{}
-        }
-        if (version !== 4) return persisted as any;
-        return persisted;
-      },
-      onRehydrateStorage: ()=> (state, error)=>{
-        if(error) console.error('Rehydrate failed',error);
-        if(state){
-          // Ensure hero has new palette defaults if missing (fixes red not persisting after old cache)
-          if(!state.hero.titleColor) state.hero.titleColor='#ffffff';
-          if(!state.hero.titleFontFamily) state.hero.titleFontFamily='Space Grotesk';
-        }
-      },
+      name: STORAGE_KEY,
+      storage: createJSONStorage(() => {
+        if (typeof window === 'undefined') return { getItem: ()=>null, setItem: ()=>{}, removeItem: ()=>{} };
+        return localStorage;
+      }),
+      partialize: (s)=> ({
+        products: s.products,
+        categories: s.categories,
+        hero: s.hero,
+        ticker: s.ticker,
+        announcements: s.announcements,
+        coupons: s.coupons,
+        sections: s.sections,
+        homepageSections: s.homepageSections,
+        navigation: s.navigation,
+        siteSettings: s.siteSettings,
+        cart: s.cart,
+        orders: s.orders,
+        wishlist: s.wishlist,
+      }),
     }
   )
 );
+
+export function forceSave(){
+  try {
+    const state = useUniqloStore.getState();
+    const data = {
+      state: {
+        products: state.products,
+        categories: state.categories,
+        hero: state.hero,
+        ticker: state.ticker,
+        announcements: state.announcements,
+        coupons: state.coupons,
+        sections: state.sections,
+        homepageSections: state.homepageSections,
+        navigation: state.navigation,
+        siteSettings: state.siteSettings,
+        cart: state.cart,
+        orders: state.orders,
+        wishlist: state.wishlist,
+      },
+      version: -1,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    return { ok: true, size: JSON.stringify(data).length };
+  } catch(e: any) {
+    return { ok: false, error: e?.message || 'Unknown error' };
+  }
+}
+
+export function getStorageInfo(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { exists: false, size: 0, hero: null };
+    const parsed = JSON.parse(raw);
+    return { exists: true, size: raw.length, hero: parsed?.state?.hero || null };
+  } catch {
+    return { exists: false, size: 0, hero: null };
+  }
+}
 
 export function calcCartTotals(cart: UniqloCartItem[], coupons: Coupon[], code?: string, siteSettings?: SiteSettings){
   const subtotal = cart.reduce((a,c)=> a + c.product.price * c.quantity, 0);
@@ -220,7 +230,7 @@ export function calcCartTotals(cart: UniqloCartItem[], coupons: Coupon[], code?:
         if(cp.type==='percent'){ discount = subtotal * (cp.value/100); if(cp.maxDiscount) discount = Math.min(discount, cp.maxDiscount); }
         else if(cp.type==='fixed'){ discount = Math.min(cp.value, subtotal); }
         else if(cp.type==='free_shipping'){ freeShipping=true; }
-        else if(cp.type==='bogo'){ // BOGO 50%: cheapest item 50% off if 2+ items
+        else if(cp.type==='bogo'){
           const totalQty = cart.reduce((a,c)=>a+c.quantity,0);
           if(totalQty>=2){
             const cheapest = Math.min(...cart.map(c=>c.product.price));
@@ -232,7 +242,7 @@ export function calcCartTotals(cart: UniqloCartItem[], coupons: Coupon[], code?:
   }
   if(freeShipping || subtotal>=threshold) shipping=0;
   const afterDiscount = subtotal - discount;
-  const tax = 0; // INR tax inclusive display for now, configurable via siteSettings later
+  const tax = 0;
   const total = afterDiscount + shipping + tax;
   const savings = cart.reduce((a,c)=> {
     if(c.product.compareAtPrice) return a + (c.product.compareAtPrice - c.product.price)*c.quantity;

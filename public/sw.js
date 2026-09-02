@@ -1,25 +1,34 @@
-// FreshBasket PWA — service worker
-const CACHE = 'freshbasket-v1';
-const URLS = ['/', '/shop', '/manifest.json'];
+// ManiKunj PWA — service worker v2 (network-first)
+const CACHE = 'manikunj-v2';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(URLS)));
   self.skipWaiting();
 });
 self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+  );
   self.clients.claim();
 });
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+  if (e.request.url.includes('/admin')) return;
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).catch(()=> caches.match('/')))
+    fetch(e.request)
+      .then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(e.request).then(cached => cached || caches.match('/')))
   );
 });
 self.addEventListener('push', (e) => {
-  const data = e.data ? e.data.json() : { title:'FreshBasket', body:'New update' };
+  const data = e.data ? e.data.json() : { title: 'ManiKunj', body: 'New update' };
   e.waitUntil(
-    self.registration.showNotification(data.title || 'FreshBasket', {
+    self.registration.showNotification(data.title || 'ManiKunj', {
       body: data.body,
       icon: '/icon-192.png',
       badge: '/icon-192.png',
