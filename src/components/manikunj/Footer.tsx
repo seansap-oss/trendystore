@@ -11,18 +11,18 @@ export default function ManiKunjFooter(){
   const links = siteSettings.footerLinks || [];
   return (
     <footer className="bg-[#111111] text-white mt-8">
-      {/* newsletter */}
+      {/* newsletter - editable via Admin → Site */}
       {siteSettings.newsletterEnabled && (
         <div className="border-b border-white/10">
           <div className="max-w-[1440px] mx-auto px-4 py-8 flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
             <div>
-              <p className="text-sm font-black tracking-widest">JOIN MANIKUNJ REWARDS</p>
-              <p className="text-xs text-white/70 mt-1">Get 10% off your first order, early access to sales & earn points.</p>
+              <p className="text-sm font-black tracking-widest">{siteSettings.newsletterTitle || 'JOIN MANIKUNJ REWARDS'}</p>
+              <p className="text-xs text-white/70 mt-1">{siteSettings.newsletterSubtitle || 'Get 10% off your first order, early access to sales & earn points.'}</p>
             </div>
             <div className="flex gap-2 w-full lg:w-auto">
               <input value={email} onChange={e=> setEmail(e.target.value)} placeholder="Enter your email" className="flex-1 lg:w-[320px] px-4 py-3 text-sm bg-white text-black placeholder:text-neutral-500 outline-none" />
               <button onClick={()=>{ if(email.includes('@')){ setDone(true); setEmail(''); setTimeout(()=>setDone(false),3000); }}} className="bg-white text-black px-6 py-3 text-xs font-black tracking-widest border border-white hover:bg-black hover:text-white hover:border-white transition">
-                {done ? 'THANKS!' : 'JOIN NOW'}
+                {done ? 'THANKS!' : (siteSettings.newsletterButtonLabel || 'JOIN NOW')}
               </button>
             </div>
           </div>

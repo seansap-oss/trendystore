@@ -65,6 +65,23 @@ export type HeroSection = {
   isActive: boolean;
   focalX?: number;
   focalY?: number;
+  // Typography controls — editable via Admin
+  titleColor?: string;
+  titleFontFamily?: string;
+  titleFontSize?: number; // px
+  titleFontWeight?: number;
+  titleItalic?: boolean;
+  titleLetterSpacing?: number; // em
+  titleAccentColor?: string; // first letter / accent color
+  titleAccentEnabled?: boolean;
+  subtitleColor?: string;
+  subtitleFontFamily?: string;
+  subtitleFontSize?: number;
+  eyebrowColor?: string;
+  eyebrowFontFamily?: string;
+  // publish state
+  draft?: boolean;
+  publishedAt?: number;
 };
 
 export type TickerConfig = {
@@ -230,4 +247,8 @@ export type SiteSettings = {
   footerLinks?: { title: string; links: { label: string; href: string }[] }[];
   socialLinks?: { platform: string; url: string }[];
   newsletterEnabled?: boolean;
+  newsletterTitle?: string;
+  newsletterSubtitle?: string;
+  newsletterButtonLabel?: string;
+  headerPromoText?: string; // editable top ticker press text
 };

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Space_Grotesk, Inter, Playfair_Display, Dancing_Script, Great_Vibes, Caveat, Bebas_Neue, Montserrat } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 
@@ -12,6 +12,12 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
+const playfair = Playfair_Display({ variable: "--font-playfair", subsets: ["latin"] });
+const dancing = Dancing_Script({ variable: "--font-dancing", subsets: ["latin"] });
+const greatVibes = Great_Vibes({ variable: "--font-greatvibes", subsets: ["latin"], weight: ["400"] });
+const caveat = Caveat({ variable: "--font-caveat", subsets: ["latin"] });
+const bebas = Bebas_Neue({ variable: "--font-bebas", subsets: ["latin"], weight: ["400"] });
+const montserrat = Montserrat({ variable: "--font-montserrat", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ManiKunj — Cotton On Style Fashion | Women Men Kids",
@@ -36,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${inter.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${inter.variable} ${playfair.variable} ${dancing.variable} ${greatVibes.variable} ${caveat.variable} ${bebas.variable} ${montserrat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white" style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}>
         <Providers>{children}</Providers>

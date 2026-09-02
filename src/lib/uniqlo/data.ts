@@ -102,6 +102,19 @@ export const DEFAULT_HERO: HeroSection = {
   verticalAlign:'center',
   overlayOpacity:0.28,
   isActive:true,
+  titleColor:'#ffffff',
+  titleFontFamily:'Space Grotesk',
+  titleFontSize:56,
+  titleFontWeight:900,
+  titleItalic:false,
+  titleLetterSpacing:-0.04,
+  titleAccentColor:'#ff4d6d',
+  titleAccentEnabled:false,
+  subtitleColor:'#ffffff',
+  subtitleFontFamily:'Inter',
+  subtitleFontSize:16,
+  eyebrowColor:'#ffffff',
+  eyebrowFontFamily:'Inter',
 };
 
 export const DEFAULT_TICKER: TickerConfig = {
@@ -202,4 +215,8 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
     { platform:'tiktok', url:'https://tiktok.com/@manikunj' },
   ],
   newsletterEnabled:true,
+  newsletterTitle:'JOIN MANIKUNJ REWARDS',
+  newsletterSubtitle:'Get 10% off your first order, early access to sales & earn points.',
+  newsletterButtonLabel:'JOIN NOW',
+  headerPromoText:'★ MANIKUNJ • FREE DELIVERY OVER ₹1999 • 25% OFF SITEWIDE • FREE RETURNS 30 DAYS •',
 };
