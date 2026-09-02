@@ -66,6 +66,34 @@ interface UniqloStore {
   toggleWishlist: (productId: string) => void;
 }
 
+function safeStorage(){
+  if(typeof window==='undefined') return undefined as any;
+  return {
+    getItem: (name:string)=>{
+      try{ return localStorage.getItem(name); }catch{ return null; }
+    },
+    setItem: (name:string,value:string)=>{
+      try{
+        localStorage.setItem(name,value);
+      }catch(e:any){
+        // Quota exceeded — try to clear old v3 and retry
+        try{
+          if(e?.name==='QuotaExceededError' || e?.code===22){
+            console.warn('Storage quota full, clearing old caches');
+            localStorage.removeItem('manikunj-store-v3');
+            localStorage.removeItem('planetfashion-store-v2');
+            try{ localStorage.setItem(name,value); }catch{}
+          }
+        }catch{}
+        console.error('Persist save failed',e);
+      }
+    },
+    removeItem: (name:string)=>{
+      try{ localStorage.removeItem(name); }catch{}
+    },
+  } as any;
+}
+
 export const useUniqloStore = create<UniqloStore>()(
   persist(
     (set, get) => ({
@@ -146,13 +174,31 @@ export const useUniqloStore = create<UniqloStore>()(
     }),
     {
       name:'manikunj-store-v4',
-      storage: createJSONStorage(() => typeof window !== 'undefined' ? localStorage : undefined as any),
+      storage: createJSONStorage(() => safeStorage()),
       skipHydration: false,
       partialize: (s)=> ({ products:s.products, categories:s.categories, hero:s.hero, ticker:s.ticker, announcements:s.announcements, coupons:s.coupons, sections:s.sections, homepageSections:s.homepageSections, navigation:s.navigation, siteSettings:s.siteSettings, cart:s.cart, orders:s.orders, wishlist:s.wishlist }),
       version: 4,
       migrate: (persisted: any, version: number) => {
-        if (version !== 4) return undefined as any;
+        if (persisted && version < 4) {
+          // Preserve user edits from v3 instead of wiping — merge with new defaults for new fields
+          try{
+            const raw = localStorage.getItem('manikunj-store-v3');
+            if(raw){
+              const old = JSON.parse(raw);
+              if(old?.state) return { ...old.state, ...persisted } as any;
+            }
+          }catch{}
+        }
+        if (version !== 4) return persisted as any;
         return persisted;
+      },
+      onRehydrateStorage: ()=> (state, error)=>{
+        if(error) console.error('Rehydrate failed',error);
+        if(state){
+          // Ensure hero has new palette defaults if missing (fixes red not persisting after old cache)
+          if(!state.hero.titleColor) state.hero.titleColor='#ffffff';
+          if(!state.hero.titleFontFamily) state.hero.titleFontFamily='Space Grotesk';
+        }
       },
     }
   )
