@@ -15,7 +15,6 @@ const FONT_MAP: Record<string,string> = {
 
 function renderTitle(title: string, accentEnabled?: boolean, accentColor?: string){
   if(!accentEnabled || !accentColor) return title;
-  // color first letter of each word
   return title.split(/(\s+)/).map((part,i)=>{
     if(part.trim()==='') return <span key={i}>{part}</span>;
     const first = part.charAt(0);
@@ -28,39 +27,13 @@ export default function ManiKunjHero(){
   const hero = useUniqloStore(s=> s.hero);
   const homepage = useUniqloStore(s=> s.homepageSections);
   const hsHero = homepage.find(s=> s.type==='hero' && s.isActive);
-  const data = hsHero ? {
-    eyebrow: hsHero.eyebrow,
-    title: hsHero.title || hero.title,
-    subtitle: hsHero.subtitle || hero.subtitle,
-    finePrint: hero.finePrint,
-    src: hsHero.image || hero.src,
-    mobileSrc: hsHero.mobileImage || hero.mobileSrc,
-    ctaLabel: hsHero.ctaLabel || hero.ctaLabel,
-    ctaLink: hsHero.ctaLink || hero.ctaLink,
-    cta2Label: hsHero.cta2Label || hero.cta2Label,
-    cta2Link: hsHero.cta2Link || hero.cta2Link,
-    cta3Label: hsHero.cta3Label || hero.cta3Label,
-    cta3Link: hsHero.cta3Link || hero.cta3Link,
-    overlayOpacity: hsHero.overlayOpacity ?? hero.overlayOpacity,
-  } : {
-    eyebrow: hero.eyebrow,
-    title: hero.title,
-    subtitle: hero.subtitle,
-    finePrint: hero.finePrint,
-    src: hero.src,
-    mobileSrc: hero.mobileSrc,
-    ctaLabel: hero.ctaLabel,
-    ctaLink: hero.ctaLink,
-    cta2Label: hero.cta2Label,
-    cta2Link: hero.cta2Link,
-    cta3Label: hero.cta3Label,
-    cta3Link: hero.cta3Link,
-    overlayOpacity: hero.overlayOpacity,
-  };
+  // Use store.hero as single source of truth for all content + typography
+  // homepageSections only controls section ordering/visibility
+  const data = hero;
 
   if(!hero.isActive && !hsHero?.isActive) return null;
 
-  const overlay = data.overlayOpacity ?? 0.28;
+  const overlay = hero.overlayOpacity ?? 0.28;
   const titleStyle: React.CSSProperties = {
     color: hero.titleColor || '#ffffff',
     fontFamily: FONT_MAP[hero.titleFontFamily || 'Space Grotesk'] || 'var(--font-space-grotesk)',
