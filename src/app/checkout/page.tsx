@@ -34,7 +34,7 @@ export default function CheckoutPage(){
     if(!c){ setCouponMsg('Invalid code'); return; }
     const chk=calcCartTotals(cart, coupons, code, siteSettings);
     if(c.type!=='free_shipping' && chk.discount===0 && !chk.freeShipping){ setCouponMsg('Requirements not met (min basket?)'); return; }
-    setApplied(code.toUpperCase()); setCouponMsg('Applied âœ“ â€” discount will apply at payment');
+    setApplied(code.toUpperCase()); setCouponMsg('Applied ✓ — discount will apply at payment');
   };
 
   const pay=async()=>{
@@ -100,7 +100,7 @@ export default function CheckoutPage(){
 
           <div className="bg-white border border-neutral-200 p-4">
             <h3 className="font-black text-sm" style={{ fontFamily: 'var(--font-space-grotesk)' }}>2. DISCOUNT CODE</h3>
-            <p className="text-xs text-neutral-500 mt-1">Admin can generate 10% (or any %) sale codes â€” they apply here instantly.</p>
+            <p className="text-xs text-neutral-500 mt-1">Admin can generate 10% (or any %) sale codes — they apply here instantly.</p>
             <div className="flex gap-2 mt-3">
               <input value={code} onChange={e=>setCode(e.target.value)} placeholder="Try WELCOME10, TRENDY10, MANIKUNJ25" className="flex-1 border border-neutral-300 px-3 py-2 text-sm uppercase font-mono" />
               <button onClick={apply} className="bg-black text-white px-5 py-2 text-xs font-black tracking-widest hover:bg-neutral-800">APPLY</button>
@@ -109,17 +109,17 @@ export default function CheckoutPage(){
             {couponMsg && <p className={`text-xs mt-2 font-bold ${couponMsg.includes('Applied') ? 'text-green-700' : 'text-red-600'}`}>{couponMsg}</p>}
             <div className="mt-3 flex flex-wrap gap-2">
               {coupons.filter(c=>c.isActive).slice(0,4).map(c=>(
-                <button key={c.id} onClick={()=>setCode(c.code)} className="text-xs border border-dashed border-neutral-300 px-2 py-1 hover:border-black">{c.code} â€” {c.type==='percent' ? `${c.value}%` : c.type==='fixed' ? `â‚¬${c.value}` : 'Free Ship'}{c.minBasket ? ` â€¢ min â‚¬${c.minBasket}`:''}</button>
+                <button key={c.id} onClick={()=>setCode(c.code)} className="text-xs border border-dashed border-neutral-300 px-2 py-1 hover:border-black">{c.code} — {c.type==='percent' ? `${c.value}%` : c.type==='fixed' ? `€${c.value}` : 'Free Ship'}{c.minBasket ? ` • min €${c.minBasket}`:''}</button>
               ))}
             </div>
-            <p className="text-[11px] text-neutral-500 mt-2">Generate new codes in <Link href="/admin" className="underline font-bold">Admin â†’ Coupons â†’ Generate Discount Coupon</Link></p>
+            <p className="text-[11px] text-neutral-500 mt-2">Generate new codes in <Link href="/admin" className="underline font-bold">Admin → Coupons → Generate Discount Coupon</Link></p>
           </div>
 
           <div className="bg-white border border-neutral-200 p-4">
-            <h3 className="font-black text-sm" style={{ fontFamily: 'var(--font-space-grotesk)' }}>3. PAYMENT GATEWAY â€” UPI / GPay / Card</h3>
+            <h3 className="font-black text-sm" style={{ fontFamily: 'var(--font-space-grotesk)' }}>3. PAYMENT GATEWAY — UPI / GPay / Card</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
               <button onClick={()=>setPayment('upi')} className={`p-3 border text-xs font-black flex flex-col items-center gap-1 ${payment==='upi'?'bg-black text-white border-black':'border-neutral-300 hover:border-black'}`}>
-                <span className="text-base">â¬¢</span> UPI
+                <span className="text-base">⬢</span> UPI
                 <span className="text-[10px] font-normal">Instant</span>
               </button>
               <button onClick={()=>setPayment('gpay')} className={`p-3 border text-xs font-black flex flex-col items-center gap-1 ${payment==='gpay'?'bg-black text-white border-black':'border-neutral-300 hover:border-black'}`}>
@@ -139,10 +139,10 @@ export default function CheckoutPage(){
                   <input value={upiId} onChange={e=>setUpiId(e.target.value)} className="flex-1 border border-neutral-300 px-3 py-2 text-sm font-mono" placeholder="yourname@upi" />
                   <a href={upiLink} target="_blank" rel="noopener noreferrer" className="bg-black text-white px-4 py-2 text-xs font-black">PAY VIA {payment.toUpperCase()}</a>
                 </div>
-                <p className="text-[11px] text-neutral-500 mt-2">Test mode â€” clicking opens UPI intent `upi://pay?pa={upiId}&am={totals.total} & cu=INR`.</p>
+                <p className="text-[11px] text-neutral-500 mt-2">Test mode — clicking opens UPI intent `upi://pay?pa={upiId}&am={totals.total} & cu=INR`.</p>
                 <div className="mt-3 flex gap-2">
                   <div className="w-20 h-20 bg-white border border-neutral-200 flex items-center justify-center text-[7px] font-bold text-center leading-none">QR<br/>UPI<br/>GPay</div>
-                  <p className="text-xs text-neutral-600">Scan with any UPI/GPay app â€” amount auto-filled {siteSettings.currencySymbol}{totals.total.toFixed(2)} {applied ? `(with ${applied} âˆ’${siteSettings.currencySymbol}${totals.discount.toFixed(2)})` : ''}</p>
+                  <p className="text-xs text-neutral-600">Scan with any UPI/GPay app — amount auto-filled {siteSettings.currencySymbol}{totals.total.toFixed(2)} {applied ? `(with ${applied} −${siteSettings.currencySymbol}${totals.discount.toFixed(2)})` : ''}</p>
                 </div>
               </div>
             )}
@@ -150,7 +150,7 @@ export default function CheckoutPage(){
               <div className="mt-3 space-y-2">
                 <input placeholder="Card number 4242 4242 4242 4242" className="w-full border border-neutral-300 px-3 py-2 text-sm" defaultValue="4242 4242 4242 4242" />
                 <div className="grid grid-cols-2 gap-2"><input placeholder="MM/YY" className="border border-neutral-300 px-3 py-2 text-sm" defaultValue="12/28" /><input placeholder="CVC" className="border border-neutral-300 px-3 py-2 text-sm" defaultValue="123" /></div>
-                <p className="text-xs text-neutral-500">Test mode â€” no real charge. Gateway connected.</p>
+                <p className="text-xs text-neutral-500">Test mode — no real charge. Gateway connected.</p>
               </div>
             )}
           </div>
@@ -163,15 +163,15 @@ export default function CheckoutPage(){
           </div>
           <div className="border-t border-neutral-200 mt-3 pt-3 space-y-2 text-sm">
             <div className="flex justify-between"><span>Subtotal</span><span>{siteSettings.currencySymbol}{totals.subtotal.toFixed(2)}</span></div>
-            {totals.discount>0 && <div className="flex justify-between text-green-700 font-bold"><span>Discount {applied}</span><span>âˆ’{siteSettings.currencySymbol}{totals.discount.toFixed(2)}</span></div>}
+            {totals.discount>0 && <div className="flex justify-between text-green-700 font-bold"><span>Discount {applied}</span><span>−{siteSettings.currencySymbol}{totals.discount.toFixed(2)}</span></div>}
             <div className="flex justify-between"><span>Shipping</span><span>{totals.shipping===0?'FREE':`${siteSettings.currencySymbol}${totals.shipping.toFixed(2)}`}</span></div>
             <div className="flex justify-between"><span>Tax</span><span>{siteSettings.currencySymbol}{totals.tax.toFixed(2)}</span></div>
             <div className="flex justify-between font-black text-lg border-t border-neutral-200 pt-2" style={{ fontFamily: 'var(--font-space-grotesk)' }}><span>TOTAL</span><span>{siteSettings.currencySymbol}{totals.total.toFixed(2)}</span></div>
             {totals.savings>0 && <p className="text-xs text-[#ff4d6d]">You save {siteSettings.currencySymbol}{totals.savings.toFixed(2)} on MRP</p>}
           </div>
-          <button onClick={pay} disabled={isPaying} className="w-full bg-black hover:bg-neutral-900 disabled:opacity-50 text-white py-3.5 text-xs font-black tracking-[0.12em] mt-4" style={{ fontFamily: 'var(--font-space-grotesk)' }}>{isPaying ? 'PROCESSINGâ€¦' : `PAY ${siteSettings.currencySymbol}${totals.total.toFixed(2)} VIA ${payment.toUpperCase()}`}</button>
+          <button onClick={pay} disabled={isPaying} className="w-full bg-black hover:bg-neutral-900 disabled:opacity-50 text-white py-3.5 text-xs font-black tracking-[0.12em] mt-4" style={{ fontFamily: 'var(--font-space-grotesk)' }}>{isPaying ? 'PROCESSING…' : `PAY ${siteSettings.currencySymbol}${totals.total.toFixed(2)} VIA ${payment.toUpperCase()}`}</button>
           {!session?.loggedIn && <p className="text-xs text-red-600 mt-2 text-center font-bold">Please sign in to place order.</p>}
-          <p className="text-[11px] text-neutral-500 text-center mt-2">{siteSettings.brandName} â€¢ All items, prices, coupons & payments are admin-controlled.</p>
+          <p className="text-[11px] text-neutral-500 text-center mt-2">{siteSettings.brandName} • All items, prices, coupons & payments are admin-controlled.</p>
         </div>
       </div>
       <ManiKunjFooter />

@@ -31,7 +31,7 @@ export default function AdminPage(){
       <ManiKunjHeader />
       <div className="max-w-[1420px] mx-auto px-3 sm:px-4 py-4">
         <div className="bg-black text-white p-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3"><div className="w-10 h-10 bg-white text-black flex flex-col items-center justify-center leading-none"><span className="font-black text-[14px]">MK</span><span className="font-bold text-[6px] tracking-[0.18em]">MANIKUNJ</span></div><div><h1 className="font-black text-lg" style={{ fontFamily: 'var(--font-space-grotesk)' }}>Trendy Store â€” Admin CMS</h1><p className="text-xs text-white/80">Manage your store: Hero & banners â€¢ Sections â€¢ Products â€¢ Categories â€¢ Coupons â€¢ Customers â€¢ Orders</p></div></div>
+          <div className="flex items-center gap-3"><div className="w-10 h-10 bg-white text-black flex flex-col items-center justify-center leading-none"><span className="font-black text-[14px]">MK</span><span className="font-bold text-[6px] tracking-[0.18em]">MANIKUNJ</span></div><div><h1 className="font-black text-lg" style={{ fontFamily: 'var(--font-space-grotesk)' }}>Trendy Store — Admin CMS</h1><p className="text-xs text-white/80">Manage your store: Hero & banners • Sections • Products • Categories • Coupons • Customers • Orders</p></div></div>
           <div className="flex gap-2"><span className="hidden sm:inline bg-white/10 px-3 py-2 text-xs font-bold border border-white/20">{siteSettings.brandName}</span><Link href="/" className="bg-white text-black px-4 py-2 text-xs font-black">VIEW STORE</Link></div>
         </div>
 
@@ -98,7 +98,7 @@ export default function AdminPage(){
         {tab==='ticker' && (
           <div className="bg-white border border-neutral-200 p-4 space-y-3">
             <h2 className="font-black">ANNOUNCEMENT TICKER</h2>
-            <p className="text-xs text-neutral-500">Running text below the header â€” use for promos, delivery info, rewards.</p>
+            <p className="text-xs text-neutral-500">Running text below the header — use for promos, delivery info, rewards.</p>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={ticker.enabled} onChange={e=> store.updateTicker({ enabled: e.target.checked })} /> Enabled</label>
             <label className="text-xs font-bold">TEXT (will loop)</label>
             <textarea value={ticker.text} onChange={e=> store.updateTicker({ text: e.target.value })} rows={2} className="w-full border border-neutral-300 px-3 py-2 text-sm" />
@@ -115,7 +115,7 @@ export default function AdminPage(){
         {tab==='sections' && (
           <div className="bg-white border border-neutral-200 p-4 space-y-3">
             <h2 className="font-black">HOMEPAGE SECTIONS</h2>
-            <p className="text-xs text-neutral-500">Category tiles and homepage blocks â€” upload images, change titles and links.</p>
+            <p className="text-xs text-neutral-500">Category tiles and homepage blocks — upload images, change titles and links.</p>
             <div className="grid md:grid-cols-2 gap-3">
               {store.sections.map(sec=>(
                 <div key={sec.id} className="border border-neutral-200 p-3 space-y-2">
@@ -133,7 +133,7 @@ export default function AdminPage(){
 
         {tab==='products' && (
           <div className="bg-white border border-neutral-200 p-4 space-y-4">
-            <h2 className="font-black">PRODUCTS â€” upload images, change price, â€œnot availableâ€, discounts</h2>
+            <h2 className="font-black">PRODUCTS — upload images, change price, “not available”, discounts</h2>
 
             {/* add new */}
             <div className="border border-neutral-900 p-3 bg-[#fffbeb]">
@@ -191,9 +191,9 @@ export default function AdminPage(){
                     ) : (
                       <>
                         <p className="font-bold text-sm truncate">{p.name}</p>
-                        <p className="text-xs text-neutral-500">{p.gender} â€¢ {store.categories.find(c=>c.id===p.categoryId)?.name}</p>
-                        <p className="text-sm font-black">â‚¬{p.price.toFixed(2)} {p.compareAtPrice && <span className="text-xs line-through text-neutral-400 ml-1">â‚¬{p.compareAtPrice.toFixed(2)}</span>}</p>
-                        <p className={`text-xs font-bold mt-1 ${p.available ? 'text-green-700' : 'text-red-600'}`}>{p.available ? 'âœ“ Available' : 'âœ— Not Available'}</p>
+                        <p className="text-xs text-neutral-500">{p.gender} • {store.categories.find(c=>c.id===p.categoryId)?.name}</p>
+                        <p className="text-sm font-black">€{p.price.toFixed(2)} {p.compareAtPrice && <span className="text-xs line-through text-neutral-400 ml-1">€{p.compareAtPrice.toFixed(2)}</span>}</p>
+                        <p className={`text-xs font-bold mt-1 ${p.available ? 'text-green-700' : 'text-red-600'}`}>{p.available ? '✓ Available' : '✗ Not Available'}</p>
                         <div className="flex gap-2 mt-2">
                           <button onClick={()=>setEditId(p.id)} className="text-xs border border-neutral-900 px-3 py-1 font-bold">EDIT</button>
                           <button onClick={()=>{ if(confirm('Delete?')) store.deleteProduct(p.id);}} className="text-xs border border-red-600 text-red-600 px-3 py-1 font-bold">DELETE</button>
@@ -234,21 +234,21 @@ export default function AdminPage(){
         {tab==='coupons' && (
           <div className="bg-white border border-neutral-200 p-4 space-y-4">
             <h2 className="font-black text-lg" style={{ fontFamily: 'var(--font-space-grotesk)' }}>COUPONS / DISCOUNT CODE GENERATOR</h2>
-            <p className="text-xs text-neutral-500">Generate sale codes (e.g. 10% off) â€” they apply instantly at checkout (Cart & Checkout). UPI/GPay total updates automatically.</p>
+            <p className="text-xs text-neutral-500">Generate sale codes (e.g. 10% off) — they apply instantly at checkout (Cart & Checkout). UPI/GPay total updates automatically.</p>
 
             {/* Generator */}
             <div className="border-2 border-black bg-[#fafafa] p-4">
               <p className="font-black text-sm">GENERATE NEW DISCOUNT COUPON</p>
-              <p className="text-xs text-neutral-600">Create a code â€” it applies instantly at cart & checkout.</p>
+              <p className="text-xs text-neutral-600">Create a code — it applies instantly at cart & checkout.</p>
               <div className="grid md:grid-cols-4 gap-2 mt-3">
                 <input id="gen-code" placeholder="CODE e.g. TRENDY10" className="border border-neutral-300 px-3 py-2 text-sm font-mono uppercase" defaultValue="TRENDY10" />
                 <select id="gen-type" className="border border-neutral-300 px-3 py-2 text-sm" defaultValue="percent">
                   <option value="percent">Percent %</option>
-                  <option value="fixed">Fixed â‚¬</option>
+                  <option value="fixed">Fixed €</option>
                   <option value="free_shipping">Free Shipping</option>
                 </select>
                 <input id="gen-value" type="number" placeholder="Value (10 for 10%)" className="border border-neutral-300 px-3 py-2 text-sm" defaultValue={10} />
-                <input id="gen-min" type="number" placeholder="Min basket â‚¬ (optional)" className="border border-neutral-300 px-3 py-2 text-sm" defaultValue={0} />
+                <input id="gen-min" type="number" placeholder="Min basket € (optional)" className="border border-neutral-300 px-3 py-2 text-sm" defaultValue={0} />
               </div>
               <div className="flex gap-2 mt-3">
                 <button onClick={()=>{
@@ -258,12 +258,12 @@ export default function AdminPage(){
                   const minEl=document.getElementById('gen-min') as HTMLInputElement;
                   let code=codeEl.value.trim().toUpperCase(); if(!code) code='TRENDY'+Math.floor(10+Math.random()*90);
                   const type=typeEl.value as any; const value=Number(valEl.value)||10; const minBasket=Number(minEl.value)||0;
-                  store.addCoupon({ id:'c'+Date.now().toString(36), code, type, value, minBasket: minBasket||undefined, isActive:true, usedCount:0, description: `${value}${type==='percent'?'%':'â‚¹'} off ${minBasket?`over â‚¹${minBasket}`:''} â€” Trendy Store` });
+                  store.addCoupon({ id:'c'+Date.now().toString(36), code, type, value, minBasket: minBasket||undefined, isActive:true, usedCount:0, description: `${value}${type==='percent'?'%':'₹'} off ${minBasket?`over ₹${minBasket}`:''} — Trendy Store` });
                   codeEl.value='';
                 }} className="bg-black text-white px-6 py-2 text-xs font-black tracking-widest">GENERATE CODE</button>
                 <button onClick={()=>{
                   const code='SALE'+Math.floor(10+Math.random()*90);
-                  store.addCoupon({ id:'c'+Date.now().toString(36), code, type:'percent', value:10, isActive:true, usedCount:0, description:'10% sale â€” Trendy Store' });
+                  store.addCoupon({ id:'c'+Date.now().toString(36), code, type:'percent', value:10, isActive:true, usedCount:0, description:'10% sale — Trendy Store' });
                 }} className="border border-black px-6 py-2 text-xs font-black">QUICK 10% SALE</button>
               </div>
             </div>
@@ -273,7 +273,7 @@ export default function AdminPage(){
                 <div key={cp.id} className="border border-neutral-200 p-3 grid md:grid-cols-7 gap-2 items-center bg-white">
                   <input value={cp.code} onChange={e=> store.updateCoupon(cp.id,{ code: e.target.value.toUpperCase() })} className="border border-neutral-300 px-2 py-1 text-sm font-mono font-bold" />
                   <select value={cp.type} onChange={e=> store.updateCoupon(cp.id,{ type: e.target.value as any })} className="border border-neutral-300 px-2 py-1 text-sm">
-                    <option value="percent">Percent %</option><option value="fixed">Fixed â‚¬</option><option value="free_shipping">Free Ship</option>
+                    <option value="percent">Percent %</option><option value="fixed">Fixed €</option><option value="free_shipping">Free Ship</option>
                   </select>
                   <input type="number" value={cp.value} onChange={e=> store.updateCoupon(cp.id,{ value: Number(e.target.value) })} className="border border-neutral-300 px-2 py-1 text-sm" />
                   <input type="number" value={cp.minBasket || 0} onChange={e=> store.updateCoupon(cp.id,{ minBasket: Number(e.target.value) })} className="border border-neutral-300 px-2 py-1 text-sm" placeholder="Min" />
@@ -283,7 +283,7 @@ export default function AdminPage(){
                 </div>
               ))}
             </div>
-            <p className="text-[11px] text-neutral-500">Checkout validates via <span className="font-mono">calcCartTotals</span> â€” percent / fixed / free shipping, min basket, active flag. Codes apply from admin price.</p>
+            <p className="text-[11px] text-neutral-500">Checkout validates via <span className="font-mono">calcCartTotals</span> — percent / fixed / free shipping, min basket, active flag. Codes apply from admin price.</p>
           </div>
         )}
 
@@ -310,9 +310,9 @@ export default function AdminPage(){
                 {orders.map(o=>(
                   <div key={o.id} className="border border-neutral-200 p-3">
                     <div className="flex justify-between text-xs"><span className="font-mono font-bold">{o.orderNumber}</span><span>{new Date(o.createdAt).toLocaleString()}</span></div>
-                    <p className="text-xs text-neutral-500">{o.username} â€¢ {o.paymentMethod} â€¢ {o.status}</p>
+                    <p className="text-xs text-neutral-500">{o.username} • {o.paymentMethod} • {o.status}</p>
                     <p className="text-sm mt-1">{o.items.map(i=> `${i.quantity}x ${i.product.name}`).join(', ')}</p>
-                    <p className="font-black text-sm mt-1">â‚¬{o.total.toFixed(2)} {o.couponCode && `(coupon ${o.couponCode})`}</p>
+                    <p className="font-black text-sm mt-1">€{o.total.toFixed(2)} {o.couponCode && `(coupon ${o.couponCode})`}</p>
                   </div>
                 ))}
               </div>
